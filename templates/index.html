@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Smart Park · Бишкек</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+      :root {
+        --bg: #091014;
+        --panel: #111b20;
+        --panel-2: #17242a;
+        --line: #26363d;
+        --text: #f5f8f7;
+        --muted: #8ea0a5;
+        --green: #c7f36b;
+        --cyan: #6be6db;
+        --danger: #ff6c73;
+        --shadow: 0 22px 60px #0009;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Manrope, sans-serif;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        border: 0;
+      }
+      .app {
+        min-height: 100vh;
+        max-width: 1440px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        position: relative;
+      }
+      .rail {
+        padding: 34px 26px;
+        border-right: 1px solid #ffffff0d;
+        background: #0c1519;
+        display: flex;
+        flex-direction: column;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        font-family: Space Grotesk;
+        font-weight: 700;
+        font-size: 21px;
+        letter-spacing: -0.6px;
+      }
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        background: var(--green);
+        color: #101719;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        font-size: 20px;
+        position: relative;
+        isolation: isolate;
+        animation:
+          logo-arrival 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
+          logo-breathe 3.8s ease-in-out 900ms infinite;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease;
+      }
+      .brand-mark::before {
+        content: "";
+        position: absolute;
+        inset: -5px;
+        border: 1px solid var(--green);
+        border-radius: 15px;
+        opacity: 0.35;
+        z-index: -1;
+        animation: logo-ring 3.8s ease-out 900ms infinite;
+      }
+      .brand:hover .brand-mark,
+      .brand:focus-within .brand-mark {
+        transform: translateY(-2px) rotate(-4deg) scale(1.06);
+        box-shadow: 0 8px 24px #c7f36b55;
+      }
+      .brand {
+        cursor: pointer;
+        user-select: none;
+      }
+      @keyframes logo-arrival {
+        from {
+          opacity: 0;
+          transform: translateY(10px) rotate(-12deg) scale(0.7);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) rotate(0) scale(1);
+        }
+      }
+      @keyframes logo-breathe {
+        0%,
+        100% {
+          box-shadow: 0 0 0 #c7f36b00;
+        }
+        50% {
+          box-shadow: 0 0 24px #c7f36b45;
+        }
+      }
+      @keyframes logo-ring {
+        0% {
+          opacity: 0.4;
+          transform: scale(0.85);
+        }
+        70%,
+        100% {
+          opacity: 0;
+          transform: scale(1.35);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .brand-mark,
+        .brand-mark::before {
+          animation: none;
+        }
+      }
+      .eyebrow {
+        color: var(--green);
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        font-weight: 800;
+        margin-top: 72px;
+      }
+      .rail h1 {
+        font: 600 42px/1.02 Space Grotesk;
+        margin: 14px 0;
+        color: #f6f8f4;
+        letter-spacing: -2px;
+      }
+      .rail p {
+        font-size: 13px;
+        line-height: 1.65;
+        color: var(--muted);
+        max-width: 230px;
+      }
+      .stats {
+        margin-top: auto;
+        border-top: 1px solid var(--line);
+        padding-top: 20px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .stats strong {
+        display: block;
+        color: var(--text);
+        font: 600 27px Space Grotesk;
+        margin-bottom: 5px;
+      }
+      .main {
+        min-width: 0;
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .topbar {
+        position: absolute;
+        z-index: 500;
+        top: 28px;
+        left: 32px;
+        right: 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        pointer-events: none;
+      }
+      .topbar > * {
+        pointer-events: auto;
+      }
+      .location {
+        background: #111d21dc;
+        border: 1px solid #ffffff14;
+        border-radius: 14px;
+        padding: 12px 16px;
+        backdrop-filter: blur(14px);
+        font-size: 13px;
+      }
+      .location b {
+        font-size: 14px;
+      }
+      .location span {
+        color: var(--muted);
+        margin-left: 8px;
+      }
+      .avatar {
+        background: var(--green);
+        color: #16201c;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        box-shadow: 0 0 24px #c7f36b44;
+      }
+      .map {
+        height: 100%;
+        width: 100%;
+        background: #15252a;
+      }
+      .leaflet-container {
+        font-family: Manrope;
+      }
+      .leaflet-control-zoom {
+        border: 0 !important;
+        box-shadow: var(--shadow) !important;
+      }
+      .leaflet-control-zoom a {
+        background: #142126 !important;
+        color: var(--text) !important;
+        border: 0 !important;
+      }
+      .marker {
+        width: 36px;
+        height: 36px;
+        border: 2px solid var(--green);
+        background: #16251f;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow:
+          0 0 0 5px #c7f36b20,
+          0 0 20px #c7f36b99;
+        display: grid;
+        place-items: center;
+      }
+      .marker span {
+        transform: rotate(45deg);
+        font-size: 15px;
+      }
+      .bottom-nav {
+        position: absolute;
+        z-index: 600;
+        left: 50%;
+        bottom: 25px;
+        transform: translateX(-50%);
+        background: #111c20ed;
+        border: 1px solid #ffffff14;
+        border-radius: 19px;
+        padding: 7px;
+        display: flex;
+        gap: 3px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+      .nav-btn {
+        background: transparent;
+        color: #8c9da1;
+        padding: 10px 17px;
+        border-radius: 13px;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+      }
+      .nav-btn span {
+        font-size: 18px;
+      }
+      .nav-btn.active {
+        background: var(--green);
+        color: #19211e;
+        font-weight: 800;
+      }
+      .sheet {
+        position: absolute;
+        z-index: 550;
+        right: 30px;
+        top: 96px;
+        bottom: 102px;
+        width: 375px;
+        overflow: auto;
+        display: none;
+        background: #101b1fef;
+        border: 1px solid #ffffff15;
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(22px);
+        padding: 24px;
+      }
+      .sheet.active {
+        display: block;
+      }
+      .sheet-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .sheet h2 {
+        font: 600 25px Space Grotesk;
+        margin: 0;
+      }
+      .close {
+        background: #223137;
+        color: var(--text);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+      }
+      .mall-image {
+        height: 145px;
+        border-radius: 15px;
+        object-fit: cover;
+        width: 100%;
+        filter: saturate(0.8);
+      }
+      .mall-meta {
+        padding: 14px 0;
+      }
+      .mall-meta h3 {
+        font: 600 22px Space Grotesk;
+        margin: 0 0 5px;
+      }
+      .mall-meta p {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 0;
+      }
+      .spot-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 17px 0 10px;
+        font-weight: 700;
+      }
+      .legend {
+        font-size: 10px;
+        color: var(--muted);
+        font-weight: 400;
+      }
+      .legend i {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        margin: 0 4px 1px 8px;
+      }
+      .legend i:first-child {
+        margin-left: 0;
+        background: var(--danger);
+      }
+      .spots {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 7px;
+      }
+      .parking-map {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(34px, 1fr));
+        gap: 8px;
+        padding: 14px 10px;
+        border: 1px solid #ffffff12;
+        border-radius: 14px;
+        background: #0c1519;
+        position: relative;
+      }
+      .parking-map::before,
+      .parking-map::after {
+        content: "";
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        height: 1px;
+        background: #ffffff10;
+        pointer-events: none;
+      }
+      .parking-map::before {
+        top: 50%;
+      }
+      .parking-map::after {
+        display: none;
+      }
+      .map-spot {
+        min-height: 54px;
+        border: 1px solid #31444a;
+        border-radius: 7px;
+        background: #18282d;
+        color: var(--green);
+        font-size: 10px;
+        position: relative;
+        z-index: 1;
+      }
+      .map-spot::after {
+        content: "";
+        display: block;
+        width: 10px;
+        height: 18px;
+        margin: 4px auto 0;
+        border: 1px solid currentColor;
+        border-radius: 5px 5px 2px 2px;
+        opacity: 0.55;
+      }
+      .map-spot.free:hover,
+      .map-spot.selected {
+        background: #304a39;
+        border-color: var(--green);
+        box-shadow: 0 0 14px #c7f36b44;
+      }
+      .map-spot.booked {
+        color: var(--danger);
+        background: #281f25;
+        border-color: #69363e;
+        opacity: 0.8;
+        cursor: not-allowed;
+      }
+      .map-spot.booked::after {
+        opacity: 0.35;
+      }
+      .spot {
+        background: #1b2a2f;
+        color: var(--text);
+        border: 1px solid transparent;
+        border-radius: 9px;
+        padding: 11px 2px;
+        font-size: 11px;
+      }
+      .spot small {
+        display: block;
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 3px;
+      }
+      .spot.free:hover,
+      .spot.selected {
+        border-color: var(--green);
+        background: #263a31;
+        color: var(--green);
+      }
+      .spot.booked {
+        color: #69777b;
+        text-decoration: line-through;
+        cursor: not-allowed;
+      }
+      .primary {
+        width: 100%;
+        background: var(--green);
+        color: #15201a;
+        border-radius: 11px;
+        padding: 14px;
+        font-weight: 800;
+        margin-top: 20px;
+      }
+      .primary:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .page {
+        position: absolute;
+        z-index: 450;
+        inset: 0;
+        background: var(--bg);
+        display: none;
+        overflow: auto;
+        padding: 36px 42px 110px;
+      }
+      .page.active {
+        display: block;
+      }
+      .page-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        margin-bottom: 28px;
+      }
+      .page-title h2 {
+        font: 600 34px Space Grotesk;
+        margin: 0;
+      }
+      .page-title p {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 6px 0 0;
+      }
+      .mall-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+      .mall-card {
+        background: var(--panel);
+        border: 1px solid #ffffff0b;
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: 0.25s;
+      }
+      .mall-card:hover {
+        transform: translateY(-3px);
+        border-color: #c7f36b66;
+      }
+      .mall-card img {
+        width: 100%;
+        height: 145px;
+        object-fit: cover;
+      }
+      .mall-card div {
+        padding: 15px;
+      }
+      .mall-card h3 {
+        font: 600 18px Space Grotesk;
+        margin: 0 0 5px;
+      }
+      .mall-card p {
+        color: var(--muted);
+        font-size: 11px;
+        margin: 0 0 13px;
+      }
+      .free {
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .reservations {
+        max-width: 720px;
+      }
+      .reservation-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .reservation-card h3 {
+        font: 600 19px Space Grotesk;
+        margin: 0 0 7px;
+      }
+      .reservation-card p {
+        color: var(--muted);
+        font-size: 12px;
+        margin: 0;
+      }
+      .code {
+        font: 700 25px Space Grotesk;
+        letter-spacing: 3px;
+        color: var(--green);
+        text-align: right;
+      }
+      .code small {
+        display: block;
+        font: 500 10px Manrope;
+        letter-spacing: 1px;
+        color: var(--muted);
+      }
+      .profile-form {
+        max-width: 500px;
+        background: var(--panel);
+        border-radius: 18px;
+        padding: 24px;
+      }
+      .field {
+        display: block;
+        margin-bottom: 15px;
+      }
+      .field span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        margin-bottom: 7px;
+      }
+      .field input {
+        width: 100%;
+        background: #0d171b;
+        border: 1px solid var(--line);
+        color: var(--text);
+        padding: 13px;
+        border-radius: 10px;
+        outline: 0;
+      }
+      .field input:focus {
+        border-color: var(--green);
+      }
+      .toast {
+        position: fixed;
+        z-index: 1000;
+        left: 50%;
+        top: 22px;
+        transform: translate(-50%, -120px);
+        background: #dffb9e;
+        color: #15201a;
+        border-radius: 12px;
+        padding: 13px 18px;
+        font-size: 13px;
+        font-weight: 700;
+        transition: 0.3s;
+      }
+      .toast.show {
+        transform: translate(-50%, 0);
+      }
+      .empty {
+        border: 1px dashed var(--line);
+        border-radius: 16px;
+        padding: 35px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 13px;
+      }
+      @media (max-width: 800px) {
+        .app {
+          display: block;
+        }
+        .rail {
+          display: none;
+        }
+        .main {
+          height: 100vh;
+        }
+        .topbar {
+          top: 18px;
+          left: 18px;
+          right: 18px;
+        }
+        .sheet {
+          left: 12px;
+          right: 12px;
+          top: auto;
+          bottom: 82px;
+          width: auto;
+          max-height: 70vh;
+        }
+        .bottom-nav {
+          bottom: 12px;
+          width: calc(100% - 24px);
+          justify-content: space-around;
+        }
+        .nav-btn {
+          padding: 9px 8px;
+          flex: 1;
+          justify-content: center;
+          font-size: 10px;
+        }
+        .nav-btn span {
+          font-size: 16px;
+        }
+        .page {
+          padding: 24px 18px 90px;
+        }
+        .page-title h2 {
+          font-size: 28px;
+        }
+        .page-title {
+          display: block;
+        }
+        .page-title p {
+          margin-top: 8px;
+        }
+        .mall-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+        .mall-card img {
+          height: 105px;
+        }
+        .mall-card div {
+          padding: 11px;
+        }
+        .mall-card h3 {
+          font-size: 15px;
+        }
+        .reservation-card {
+          padding: 15px;
+        }
+        .code {
+          font-size: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="rail">
+        <div
+          class="brand"
+          id="brandLogo"
+          role="button"
+          tabindex="0"
+          title="Включить звук Smart Park"
+        >
+          <div class="brand-mark">P</div>
+          Smart Park
+        </div>
+        <div class="eyebrow">Parking, simplified</div>
+        <h1>Ваше место<br />уже ждёт.</h1>
+        <p>
+          Умная парковка в лучших торговых центрах Бишкека. Найдите, выберите и
+          приезжайте без лишних кругов.
+        </p>
+        <div class="stats">
+          <strong>07</strong>локаций в городе<br /><br /><strong>24/7</strong
+          >свободный въезд
+        </div>
+      </aside>
+      <main class="main">
+        <div class="topbar">
+          <div class="location">⌖ <b>Бишкек</b><span>· онлайн</span></div>
+          <button class="avatar" id="avatar">?</button>
+        </div>
+        <div id="map" class="map"></div>
+        <section id="mallSheet" class="sheet"></section>
+        <section id="catalogPage" class="page">
+          <div class="page-title">
+            <div>
+              <h2>Все локации</h2>
+              <p>Семь удобных парковок в центре города</p>
+            </div>
+          </div>
+          <div id="mallGrid" class="mall-grid"></div>
+        </section>
+        <section id="reservationsPage" class="page">
+          <div class="page-title">
+            <div>
+              <h2>Мои брони</h2>
+              <p>Ваши активные парковочные места</p>
+            </div>
+          </div>
+          <div id="reservationList" class="reservations"></div>
+        </section>
+        <section id="profilePage" class="page">
+          <div class="page-title">
+            <div>
+              <h2>Профиль</h2>
+              <p>Данные для быстрого бронирования</p>
+            </div>
+          </div>
+          <form id="profileForm" class="profile-form">
+            {% csrf_token %}
+            <label class="field"
+              ><span>ИМЯ</span
+              ><input name="first_name" required placeholder="Азамат" /></label
+            ><label class="field"
+              ><span>ФАМИЛИЯ</span
+              ><input name="last_name" required placeholder="Садыков" /></label
+            ><label class="field"
+              ><span>МАРКА АВТО</span
+              ><input
+                name="car_make"
+                required
+                placeholder="Toyota Camry" /></label
+            ><label class="field"
+              ><span>ГОСУДАРСТВЕННЫЙ НОМЕР</span
+              ><input
+                name="plate_number"
+                required
+                placeholder="01 KG 777 ABC" /></label
+            ><button class="primary">Сохранить профиль</button>
+          </form>
+        </section>
+        <nav class="bottom-nav">
+          <button class="nav-btn active" data-page="map">
+            <span>⌁</span>Карта</button
+          ><button class="nav-btn" data-page="catalogPage">
+            <span>▦</span>ТЦ</button
+          ><button class="nav-btn" data-page="reservationsPage">
+            <span>◇</span>Мои брони</button
+          ><button class="nav-btn" data-page="profilePage">
+            <span>◯</span>Профиль
+          </button>
+        </nav>
+      </main>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      const state = { malls: [], profile: null, map: null, markers: [] };
+      const $ = (s) => document.querySelector(s);
+      const toast = (message) => {
+        const el = $("#toast");
+        el.textContent = message;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 2800);
+      };
+      let audioContext;
+      function playLogoSound() {
+        audioContext ||= new (
+          window.AudioContext || window.webkitAudioContext
+        )();
+        const now = audioContext.currentTime;
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(440, now);
+        oscillator.frequency.exponentialRampToValueAtTime(660, now + 0.12);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.055, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+        oscillator.connect(gain).connect(audioContext.destination);
+        oscillator.start(now);
+        oscillator.stop(now + 0.2);
+      }
+      const post = (url, data) =>
+        fetch(url, {
+          method: "POST",
+          headers: { "X-CSRFToken": getCookie("csrftoken") },
+          body: data,
+        });
+      function getCookie(name) {
+        return (
+          document.cookie
+            .split(";")
+            .map((v) => v.trim())
+            .find((v) => v.startsWith(name + "="))
+            ?.split("=")[1] || ""
+        );
+      }
+      function showPage(page) {
+        document
+          .querySelectorAll(".page")
+          .forEach((p) => p.classList.remove("active"));
+        $("#mallSheet").classList.remove("active");
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((b) =>
+            b.classList.toggle("active", b.dataset.page === page),
+          );
+        if (page !== "map") $("#" + page).classList.add("active");
+        if (page === "reservationsPage") loadReservations();
+      }
+      function markerIcon() {
+        return L.divIcon({
+          className: "",
+          html: '<div class="marker"><span>P</span></div>',
+          iconSize: [36, 36],
+          iconAnchor: [18, 36],
+        });
+      }
+      function openMall(mall) {
+        const sheet = $("#mallSheet");
+        sheet.innerHTML = `<div class="sheet-head"><span class="eyebrow" style="margin:0">PARKING SPOT</span><button class="close" onclick="closeSheet()">×</button></div><img class="mall-image" src="${mall.photo_url}" alt="${mall.name}"><div class="mall-meta"><h3>${mall.name}</h3><p>⌖ ${mall.address}</p></div><div class="spot-title">Карта парковки <span class="legend"><i></i>занято <i></i>свободно</span></div><div class="parking-map">${mall.spots.map((s) => `<button class="map-spot ${s.is_booked ? "booked" : "free"}" ${s.is_booked ? "disabled" : ""} data-spot="${s.id}" title="${s.number}, ${s.floor} этаж">${s.number}</button>`).join("")}</div><div class="spot-title">Список мест</div><div class="spots">${mall.spots.map((s) => `<button class="spot ${s.is_booked ? "booked" : "free"}" ${s.is_booked ? "disabled" : ""} data-spot="${s.id}">${s.number}<small>${s.floor} этаж</small></button>`).join("")}</div><button class="primary" id="reserveBtn" disabled>Забронировать место</button>`;
+        sheet.classList.add("active");
+        let selected = null;
+        sheet.querySelectorAll(".spot.free, .map-spot.free").forEach(
+          (btn) =>
+            (btn.onclick = () => {
+              sheet
+                .querySelectorAll(".spot, .map-spot")
+                .forEach((x) => x.classList.remove("selected"));
+              sheet
+                .querySelectorAll(`[data-spot="${btn.dataset.spot}"]`)
+                .forEach((x) => x.classList.add("selected"));
+              selected = btn.dataset.spot;
+              $("#reserveBtn").disabled = false;
+            }),
+        );
+        $("#reserveBtn").onclick = () => {
+          if (!state.profile) {
+            closeSheet();
+            showPage("profilePage");
+            toast("Сначала заполните профиль");
+            return;
+          }
+          const data = new FormData();
+          data.append("spot_id", selected);
+          Object.entries(state.profile).forEach(([k, v]) => data.append(k, v));
+          post("/api/reservations/create/", data)
+            .then(async (r) => {
+              const result = await r.json();
+              if (!r.ok) throw Error(result.error);
+              toast(
+                `Место ${result.reservation.spot} забронировано · код ${result.reservation.confirmation_code}`,
+              );
+              closeSheet();
+              loadData();
+            })
+            .catch((e) => toast(e.message));
+        };
+      }
+      function closeSheet() {
+        $("#mallSheet").classList.remove("active");
+      }
+      function renderCatalog() {
+        $("#mallGrid").innerHTML = state.malls
+          .map(
+            (m) =>
+              `<article class="mall-card" data-id="${m.id}"><img src="${m.photo_url}" alt="${m.name}"><div><h3>${m.name}</h3><p>${m.address}</p><span class="free">${m.free_count} свободных мест</span></div></article>`,
+          )
+          .join("");
+        document
+          .querySelectorAll(".mall-card")
+          .forEach(
+            (c) =>
+              (c.onclick = () =>
+                openMall(state.malls.find((m) => m.id == c.dataset.id))),
+          );
+      }
+      function loadReservations() {
+        const plate = state.profile?.plate_number || "";
+        fetch("/api/reservations/?plate=" + encodeURIComponent(plate))
+          .then((r) => r.json())
+          .then((data) => {
+            $("#reservationList").innerHTML = data.reservations.length
+              ? data.reservations
+                  .map(
+                    (r) =>
+                      `<article class="reservation-card"><div><h3>${r.mall}</h3><p>Место ${r.spot} · ${r.floor} этаж · ${r.created_at}</p></div><div class="code"><small>КОД ДОСТУПА</small>${r.confirmation_code}</div></article>`,
+                  )
+                  .join("")
+              : '<div class="empty">Пока нет активных бронирований.<br>Выберите ТЦ на карте и найдите своё место.</div>';
+          });
+      }
+      function loadData() {
+        fetch("/api/bootstrap/")
+          .then((r) => r.json())
+          .then((data) => {
+            state.malls = data.malls;
+            state.profile = data.profile;
+            renderCatalog();
+            if (!state.map) {
+              state.map = L.map("map", { zoomControl: false }).setView(
+                [42.8746, 74.6032],
+                13,
+              );
+              L.control.zoom({ position: "bottomright" }).addTo(state.map);
+              L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+                { attribution: "© OpenStreetMap © CARTO" },
+              ).addTo(state.map);
+            }
+            state.markers.forEach((m) => m.remove());
+            state.markers = state.malls.map((m) =>
+              L.marker([m.latitude, m.longitude], { icon: markerIcon() })
+                .addTo(state.map)
+                .on("click", () => openMall(m)),
+            );
+            $("#avatar").textContent = state.profile
+              ? state.profile.first_name[0].toUpperCase()
+              : "?";
+            if (state.profile) {
+              const form = $("#profileForm");
+              Object.entries(state.profile).forEach(
+                ([k, v]) => (form.elements[k].value = v),
+              );
+            }
+          });
+      }
+      $("#profileForm").onsubmit = (e) => {
+        e.preventDefault();
+        post("/api/profile/", new FormData(e.target))
+          .then(async (r) => {
+            const d = await r.json();
+            if (!r.ok) throw Error(d.error);
+            state.profile = d.profile;
+            $("#avatar").textContent =
+              state.profile.first_name[0].toUpperCase();
+            toast("Профиль сохранён");
+            showPage("map");
+          })
+          .catch((e) => toast(e.message));
+      };
+      document
+        .querySelectorAll(".nav-btn")
+        .forEach((b) => (b.onclick = () => showPage(b.dataset.page)));
+      $("#brandLogo").addEventListener("click", playLogoSound);
+      $("#brandLogo").addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          playLogoSound();
+        }
+      });
+      loadData();
+    </script>
+  </body>
+</html>
