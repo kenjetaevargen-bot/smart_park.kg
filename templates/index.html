@@ -628,6 +628,111 @@
         text-align: center;
         font-size: 13px;
       }
+      .splash {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background:
+          radial-gradient(
+            circle at 50% 43%,
+            #092f45 0,
+            #06151f 23%,
+            #020608 68%
+          ),
+          #020608;
+        transition:
+          opacity 650ms cubic-bezier(0.65, 0, 0.35, 1),
+          visibility 650ms;
+      }
+      .splash::before {
+        content: "";
+        position: absolute;
+        width: min(74vw, 680px);
+        aspect-ratio: 1;
+        border: 1px solid #40d9ff16;
+        border-radius: 50%;
+        box-shadow:
+          0 0 120px #00bfff18,
+          inset 0 0 90px #00bfff0b;
+      }
+      .splash.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      .splash-logo {
+        position: relative;
+        z-index: 1;
+        width: min(82vw, 520px);
+        text-align: center;
+        animation: splash-logo-arrival 2.5s cubic-bezier(0.22, 0.8, 0.25, 1)
+          both;
+      }
+      .splash-vortex {
+        display: block;
+        width: min(47vw, 220px);
+        height: auto;
+        margin: 0 auto 22px;
+        overflow: visible;
+        filter: drop-shadow(0 0 9px #2bd7ff) drop-shadow(0 0 28px #087dffcc);
+        animation: splash-vortex-pulse 1.65s ease-in-out 150ms infinite;
+      }
+      .splash-name {
+        margin: 0;
+        color: #f7feff;
+        font:
+          700 clamp(33px, 7vw, 62px) / 0.95 Space Grotesk,
+          sans-serif;
+        letter-spacing: 0.13em;
+        text-indent: 0.13em;
+        text-shadow:
+          0 0 8px #dffaff,
+          0 0 22px #1acbff,
+          0 0 46px #087dff;
+      }
+      .splash-city {
+        margin: 12px 0 0;
+        color: #7de9ff;
+        font:
+          600 clamp(12px, 2vw, 17px) / 1 Manrope,
+          sans-serif;
+        letter-spacing: 0.72em;
+        text-indent: 0.72em;
+        text-shadow:
+          0 0 12px #23cfff,
+          0 0 30px #087dff;
+      }
+      @keyframes splash-logo-arrival {
+        0% {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        18% {
+          opacity: 1;
+        }
+        64% {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+        100% {
+          opacity: 0.88;
+          transform: scale(1);
+        }
+      }
+      @keyframes splash-vortex-pulse {
+        0%,
+        100% {
+          transform: rotate(-5deg) scale(0.96);
+          filter: drop-shadow(0 0 8px #2bd7ff) drop-shadow(0 0 22px #087dff99);
+        }
+        50% {
+          transform: rotate(5deg) scale(1.04);
+          filter: drop-shadow(0 0 14px #8af1ff) drop-shadow(0 0 38px #087dff);
+        }
+      }
       @media (max-width: 800px) {
         .app {
           display: block;
@@ -697,9 +802,66 @@
           font-size: 20px;
         }
       }
+      @media (prefers-reduced-motion: reduce) {
+        .splash-logo,
+        .splash-vortex {
+          animation: none;
+        }
+        .splash {
+          transition-duration: 1ms;
+        }
+      }
     </style>
   </head>
   <body>
+    <div
+      id="splash"
+      class="splash"
+      aria-label="SMARTPARK BISHKEK"
+      role="status"
+    >
+      <div class="splash-logo">
+        <svg
+          class="splash-vortex"
+          viewBox="0 0 240 190"
+          role="img"
+          aria-label="Неоновый вихрь"
+        >
+          <defs>
+            <linearGradient id="vortexStroke" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#d9fbff" />
+              <stop offset="0.38" stop-color="#42dcff" />
+              <stop offset="1" stop-color="#087dff" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M120 95c-2-37 57-48 66-12 9 37-42 58-76 34-35-25-32-77 13-99 43-21 98 6 105 55 7 51-42 91-98 84-62-8-100-68-75-124"
+            fill="none"
+            stroke="url(#vortexStroke)"
+            stroke-linecap="round"
+            stroke-width="7"
+          />
+          <path
+            d="M120 95c8 18 37 18 45 0 8-19-14-35-36-27-24 8-31 42-11 61 22 21 63 14 79-13"
+            fill="none"
+            stroke="#8ef4ff"
+            stroke-linecap="round"
+            stroke-width="3"
+            opacity="0.9"
+          />
+          <path
+            d="M35 121c21 49 79 64 127 42 36-17 58-52 53-87"
+            fill="none"
+            stroke="#116aff"
+            stroke-linecap="round"
+            stroke-width="2"
+            opacity="0.62"
+          />
+        </svg>
+        <h1 class="splash-name">SMARTPARK</h1>
+        <p class="splash-city">BISHKEK</p>
+      </div>
+    </div>
     <div class="app">
       <aside class="rail">
         <div
@@ -982,6 +1144,15 @@
       document
         .querySelectorAll(".nav-btn")
         .forEach((b) => (b.onclick = () => showPage(b.dataset.page)));
+      const splash = $("#splash");
+      setTimeout(() => {
+        splash.classList.add("is-hidden");
+        splash.addEventListener(
+          "transitionend",
+          () => (splash.style.display = "none"),
+          { once: true },
+        );
+      }, 2500);
       $("#brandLogo").addEventListener("click", playLogoSound);
       $("#brandLogo").addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
