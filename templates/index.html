@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Smart Park · Бишкек</title>
+    <title>Smart Park</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -40,7 +40,8 @@
         font-family: Manrope, sans-serif;
       }
       button,
-      input {
+      input,
+      select {
         font: inherit;
       }
       button {
@@ -56,11 +57,25 @@
         position: relative;
       }
       .rail {
-        padding: 34px 26px;
+        padding: 98px 26px 34px;
         border-right: 1px solid #ffffff0d;
         background: #0c1519;
         display: flex;
         flex-direction: column;
+      }
+      .brand-header {
+        position: absolute;
+        z-index: 700;
+        top: 18px;
+        left: 20px;
+        display: inline-flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 6px 12px 6px 7px;
+        border: 1px solid #ffffff14;
+        border-radius: 13px;
+        background: #111d21e8;
+        backdrop-filter: blur(14px);
       }
       .brand {
         display: flex;
@@ -70,6 +85,8 @@
         font-weight: 700;
         font-size: 21px;
         letter-spacing: -0.6px;
+        cursor: pointer;
+        user-select: none;
       }
       .brand-mark {
         width: 34px;
@@ -82,67 +99,15 @@
         font-size: 20px;
         position: relative;
         isolation: isolate;
-        animation:
-          logo-arrival 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both,
-          logo-breathe 3.8s ease-in-out 900ms infinite;
-        transition:
-          transform 180ms ease,
-          box-shadow 180ms ease;
       }
-      .brand-mark::before {
-        content: "";
-        position: absolute;
-        inset: -5px;
-        border: 1px solid var(--green);
-        border-radius: 15px;
-        opacity: 0.35;
-        z-index: -1;
-        animation: logo-ring 3.8s ease-out 900ms infinite;
-      }
-      .brand:hover .brand-mark,
-      .brand:focus-within .brand-mark {
-        transform: translateY(-2px) rotate(-4deg) scale(1.06);
-        box-shadow: 0 8px 24px #c7f36b55;
-      }
-      .brand {
-        cursor: pointer;
-        user-select: none;
-      }
-      @keyframes logo-arrival {
-        from {
-          opacity: 0;
-          transform: translateY(10px) rotate(-12deg) scale(0.7);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0) rotate(0) scale(1);
-        }
-      }
-      @keyframes logo-breathe {
-        0%,
-        100% {
-          box-shadow: 0 0 0 #c7f36b00;
-        }
-        50% {
-          box-shadow: 0 0 24px #c7f36b45;
-        }
-      }
-      @keyframes logo-ring {
-        0% {
-          opacity: 0.4;
-          transform: scale(0.85);
-        }
-        70%,
-        100% {
-          opacity: 0;
-          transform: scale(1.35);
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .brand-mark,
-        .brand-mark::before {
-          animation: none;
-        }
+      .brand-mark svg {
+        width: 22px;
+        height: 22px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
       }
       .eyebrow {
         color: var(--green);
@@ -154,15 +119,9 @@
       }
       .rail h1 {
         font: 600 42px/1.02 Space Grotesk;
-        margin: 14px 0;
+        margin: 0;
         color: #f6f8f4;
         letter-spacing: -2px;
-      }
-      .rail p {
-        font-size: 13px;
-        line-height: 1.65;
-        color: var(--muted);
-        max-width: 230px;
       }
       .stats {
         margin-top: auto;
@@ -190,27 +149,35 @@
         left: 32px;
         right: 32px;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
         align-items: center;
         pointer-events: none;
       }
       .topbar > * {
         pointer-events: auto;
       }
-      .location {
-        background: #111d21dc;
+      .account-controls {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+      .locate-button {
+        width: 42px;
+        height: 42px;
         border: 1px solid #ffffff14;
         border-radius: 14px;
-        padding: 12px 16px;
+        background: #111d21dc;
+        color: var(--green);
+        font-size: 19px;
         backdrop-filter: blur(14px);
-        font-size: 13px;
+        transition: 180ms ease;
       }
-      .location b {
-        font-size: 14px;
-      }
-      .location span {
-        color: var(--muted);
-        margin-left: 8px;
+      .locate-button:hover,
+      .locate-button:focus-visible {
+        background: var(--green);
+        color: #16201c;
+        outline: 0;
       }
       .avatar {
         background: var(--green);
@@ -226,19 +193,34 @@
       .map {
         height: 100%;
         width: 100%;
-        background: #15252a;
+        background: #e8edf0;
+      }
+      .map-brand {
+        position: absolute;
+        z-index: 410;
+        right: 14px;
+        bottom: 38px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 9px 6px 6px;
+        border: 1px solid #ffffff24;
+        border-radius: 10px;
+        background: #111d21e8;
+        color: var(--text);
+        font-size: 10px;
+        font-weight: 800;
+        backdrop-filter: blur(10px);
+        pointer-events: none;
+      }
+      .map-brand .brand-mark {
+        width: 25px;
+        height: 25px;
+        border-radius: 7px;
+        font-size: 15px;
       }
       .leaflet-container {
         font-family: Manrope;
-      }
-      .leaflet-control-zoom {
-        border: 0 !important;
-        box-shadow: var(--shadow) !important;
-      }
-      .leaflet-control-zoom a {
-        background: #142126 !important;
-        color: var(--text) !important;
-        border: 0 !important;
       }
       .marker {
         width: 36px;
@@ -256,6 +238,26 @@
       .marker span {
         transform: rotate(45deg);
         font-size: 15px;
+      }
+      .marker svg {
+        width: 20px;
+        height: 20px;
+        transform: rotate(45deg);
+        fill: none;
+        stroke: var(--green);
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .user-marker {
+        width: 18px;
+        height: 18px;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        background: var(--cyan);
+        box-shadow:
+          0 0 0 7px #6be6db33,
+          0 0 20px #6be6dbcc;
       }
       .bottom-nav {
         position: absolute;
@@ -286,6 +288,20 @@
       .nav-btn span {
         font-size: 18px;
       }
+      .nav-btn .nav-icon {
+        font-size: 18px;
+      }
+      .nav-btn .nav-label {
+        display: grid;
+        gap: 2px;
+        font-size: 11px;
+        line-height: 1.05;
+        text-align: left;
+      }
+      .nav-btn .nav-city {
+        font-size: 8px;
+        opacity: 0.8;
+      }
       .nav-btn.active {
         background: var(--green);
         color: #19211e;
@@ -300,6 +316,7 @@
         width: 375px;
         overflow: auto;
         display: none;
+        flex-direction: column;
         background: #101b1fef;
         border: 1px solid #ffffff15;
         border-radius: 22px;
@@ -308,7 +325,7 @@
         padding: 24px;
       }
       .sheet.active {
-        display: block;
+        display: flex;
       }
       .sheet-head {
         display: flex;
@@ -471,6 +488,13 @@
         font-weight: 800;
         margin-top: 20px;
       }
+      .sheet .primary {
+        position: static;
+        flex: 0 0 auto;
+        width: 100%;
+        margin: 20px 0 0;
+        box-shadow: none;
+      }
       .primary:disabled {
         opacity: 0.4;
         cursor: not-allowed;
@@ -506,6 +530,33 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 16px;
+      }
+      .catalog-filters {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 190px;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+      .catalog-filter {
+        width: 100%;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: var(--text);
+        padding: 12px 14px;
+        outline: 0;
+      }
+      .catalog-filter:focus {
+        border-color: var(--cyan);
+      }
+      .catalog-empty {
+        grid-column: 1 / -1;
+        border: 1px dashed var(--line);
+        border-radius: 16px;
+        padding: 35px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 13px;
       }
       .mall-card {
         background: var(--panel);
@@ -579,7 +630,154 @@
         max-width: 500px;
         background: var(--panel);
         border-radius: 18px;
+        padding: 24px 24px 92px;
+      }
+      .registration-form {
+        max-width: 560px;
+        background: linear-gradient(145deg, #172a2d, #101b1f);
+        border: 1px solid #ffffff12;
+        border-radius: 18px;
         padding: 24px;
+        box-shadow: 0 20px 45px #0004;
+      }
+      .registration-intro {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+        margin: -12px 0 22px;
+      }
+      .registration-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 14px;
+      }
+      .registration-form .field input:invalid:not(:placeholder-shown) {
+        border-color: var(--danger);
+      }
+      .registration-error {
+        min-height: 18px;
+        color: var(--danger);
+        font-size: 11px;
+        margin: 10px 0 0;
+      }
+      .registration-success {
+        display: none;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 700;
+        margin: 14px 0 0;
+      }
+      .registration-success.show {
+        display: block;
+      }
+      .settings-list {
+        max-width: 620px;
+        display: grid;
+        gap: 10px;
+      }
+      .settings-row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 18px;
+        text-align: left;
+        color: var(--text);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          background 180ms ease;
+      }
+      .settings-row:hover,
+      .settings-row:focus-visible {
+        transform: translateX(3px);
+        border-color: var(--cyan);
+        background: var(--panel-2);
+        outline: 0;
+      }
+      .settings-icon {
+        width: 38px;
+        height: 38px;
+        flex: 0 0 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 11px;
+        background: #c7f36b20;
+        color: var(--green);
+        font-size: 19px;
+      }
+      .settings-row strong,
+      .settings-row small {
+        display: block;
+      }
+      .settings-row strong {
+        font-size: 14px;
+      }
+      .settings-row small {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 4px;
+      }
+      .settings-chevron {
+        margin-left: auto;
+        color: var(--muted);
+        font-size: 22px;
+      }
+      .settings-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 900;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        background: #02060899;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition:
+          opacity 220ms ease,
+          visibility 220ms ease;
+      }
+      .settings-modal.open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .settings-dialog {
+        width: min(100%, 560px);
+        max-height: min(720px, calc(100vh - 40px));
+        overflow: auto;
+        background: #111b20;
+        border: 1px solid #ffffff1a;
+        border-radius: 18px;
+        padding: 24px;
+        box-shadow: var(--shadow);
+        transform: translateY(18px) scale(0.98);
+        transition: transform 220ms ease;
+      }
+      .settings-modal.open .settings-dialog {
+        transform: translateY(0) scale(1);
+      }
+      .settings-dialog-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+      .settings-dialog-head h3 {
+        margin: 0;
+        font: 600 23px Space Grotesk;
+      }
+      .settings-close {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #223137;
+        color: var(--text);
+        font-size: 20px;
       }
       .field {
         display: block;
@@ -600,8 +798,27 @@
         border-radius: 10px;
         outline: 0;
       }
-      .field input:focus {
+      .field input:focus,
+      .field select:focus {
         border-color: var(--green);
+        box-shadow: 0 0 0 3px #c7f36b1a;
+      }
+      .field select {
+        appearance: none;
+        width: 100%;
+        background-color: #0d171b;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23c7f36b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 13px center;
+        border: 1px solid var(--line);
+        color: var(--text);
+        padding: 13px 42px 13px 13px;
+        border-radius: 10px;
+        outline: 0;
+      }
+      .field select option {
+        background: #0d171b;
+        color: var(--text);
       }
       .toast {
         position: fixed;
@@ -635,28 +852,10 @@
         display: grid;
         place-items: center;
         overflow: hidden;
-        background:
-          radial-gradient(
-            circle at 50% 43%,
-            #092f45 0,
-            #06151f 23%,
-            #020608 68%
-          ),
-          #020608;
+        background: #fafaf8;
         transition:
-          opacity 650ms cubic-bezier(0.65, 0, 0.35, 1),
-          visibility 650ms;
-      }
-      .splash::before {
-        content: "";
-        position: absolute;
-        width: min(74vw, 680px);
-        aspect-ratio: 1;
-        border: 1px solid #40d9ff16;
-        border-radius: 50%;
-        box-shadow:
-          0 0 120px #00bfff18,
-          inset 0 0 90px #00bfff0b;
+          opacity 500ms cubic-bezier(0.65, 0, 0.35, 1),
+          visibility 500ms;
       }
       .splash.is-hidden {
         opacity: 0;
@@ -666,71 +865,88 @@
       .splash-logo {
         position: relative;
         z-index: 1;
-        width: min(82vw, 520px);
+        width: min(60vw, 520px);
         text-align: center;
-        animation: splash-logo-arrival 2.5s cubic-bezier(0.22, 0.8, 0.25, 1)
-          both;
       }
-      .splash-vortex {
+      .splash-mark {
         display: block;
-        width: min(47vw, 220px);
+        width: 100%;
         height: auto;
-        margin: 0 auto 22px;
         overflow: visible;
-        filter: drop-shadow(0 0 9px #2bd7ff) drop-shadow(0 0 28px #087dffcc);
-        animation: splash-vortex-pulse 1.65s ease-in-out 150ms infinite;
       }
-      .splash-name {
-        margin: 0;
-        color: #f7feff;
-        font:
-          700 clamp(33px, 7vw, 62px) / 0.95 Space Grotesk,
-          sans-serif;
-        letter-spacing: 0.13em;
-        text-indent: 0.13em;
-        text-shadow:
-          0 0 8px #dffaff,
-          0 0 22px #1acbff,
-          0 0 46px #087dff;
+      .splash-pin,
+      .splash-arc,
+      .splash-word,
+      .splash-online {
+        transform-box: fill-box;
+        transform-origin: center;
       }
-      .splash-city {
-        margin: 12px 0 0;
-        color: #7de9ff;
-        font:
-          600 clamp(12px, 2vw, 17px) / 1 Manrope,
-          sans-serif;
-        letter-spacing: 0.72em;
-        text-indent: 0.72em;
-        text-shadow:
-          0 0 12px #23cfff,
-          0 0 30px #087dff;
+      .splash-pin {
+        transform-origin: 96px 82px;
+        animation: splash-pin-in 1000ms cubic-bezier(0.2, 1.45, 0.35, 1) both;
       }
-      @keyframes splash-logo-arrival {
+      .splash-arc {
+        opacity: 0;
+        transform: scale(0.72);
+        animation: splash-arc-in 350ms cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      .splash-arc:nth-of-type(1) {
+        animation-delay: 800ms;
+      }
+      .splash-arc:nth-of-type(2) {
+        animation-delay: 950ms;
+      }
+      .splash-arc:nth-of-type(3) {
+        animation-delay: 1100ms;
+      }
+      .splash-arc:nth-of-type(4) {
+        animation-delay: 1250ms;
+      }
+      .splash-word,
+      .splash-online {
+        opacity: 0;
+        transform: translateY(18px);
+        animation: splash-copy-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      .splash-word {
+        animation-delay: 1250ms;
+      }
+      .splash-online {
+        transform: translateY(12px);
+        animation-delay: 1400ms;
+      }
+      @keyframes splash-pin-in {
         0% {
           opacity: 0;
-          transform: scale(0.8);
+          transform: scale(0) rotateY(0deg);
         }
-        18% {
+        68% {
           opacity: 1;
+          transform: scale(1.08) rotateY(720deg);
         }
-        64% {
-          opacity: 1;
-          transform: scale(1.05);
+        86% {
+          transform: scale(0.97) rotateY(700deg);
         }
         100% {
-          opacity: 0.88;
-          transform: scale(1);
+          opacity: 1;
+          transform: scale(1) rotateY(720deg);
         }
       }
-      @keyframes splash-vortex-pulse {
+      @keyframes splash-arc-in {
         0%,
         100% {
-          transform: rotate(-5deg) scale(0.96);
-          filter: drop-shadow(0 0 8px #2bd7ff) drop-shadow(0 0 22px #087dff99);
+          opacity: 1;
+          transform: scale(1);
         }
-        50% {
-          transform: rotate(5deg) scale(1.04);
-          filter: drop-shadow(0 0 14px #8af1ff) drop-shadow(0 0 38px #087dff);
+        70% {
+          opacity: 1;
+          transform: scale(1.12);
+        }
+      }
+      @keyframes splash-copy-in {
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
       @media (max-width: 800px) {
@@ -739,6 +955,10 @@
         }
         .rail {
           display: none;
+        }
+        .brand-header {
+          top: 14px;
+          left: 14px;
         }
         .main {
           height: 100vh;
@@ -770,6 +990,12 @@
         .nav-btn span {
           font-size: 16px;
         }
+        .nav-btn .nav-label {
+          font-size: 9px;
+        }
+        .map-brand {
+          bottom: 70px;
+        }
         .page {
           padding: 24px 18px 90px;
         }
@@ -786,6 +1012,9 @@
           grid-template-columns: repeat(2, 1fr);
           gap: 10px;
         }
+        .catalog-filters {
+          grid-template-columns: 1fr;
+        }
         .mall-card img {
           height: 105px;
         }
@@ -798,72 +1027,134 @@
         .reservation-card {
           padding: 15px;
         }
+        .registration-grid {
+          grid-template-columns: 1fr;
+        }
         .code {
           font-size: 20px;
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .splash-logo,
-        .splash-vortex {
+        .splash-pin,
+        .splash-arc,
+        .splash-word,
+        .splash-online {
           animation: none;
+          opacity: 1;
+          transform: none;
         }
         .splash {
-          transition-duration: 1ms;
+          transition-duration: 400ms;
         }
       }
     </style>
   </head>
   <body>
+    <!-- SplashScreen: тайминги анимации меняются в CSS и в start() ниже. -->
     <div
       id="splash"
       class="splash"
-      aria-label="SMARTPARK BISHKEK"
+      aria-label="SMART PARK ONLINE"
       role="status"
     >
       <div class="splash-logo">
         <svg
-          class="splash-vortex"
-          viewBox="0 0 240 190"
+          class="splash-mark"
+          viewBox="0 0 520 190"
           role="img"
-          aria-label="Неоновый вихрь"
+          aria-label="SMART PARK ONLINE"
         >
           <defs>
-            <linearGradient id="vortexStroke" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#d9fbff" />
-              <stop offset="0.38" stop-color="#42dcff" />
-              <stop offset="1" stop-color="#087dff" />
+            <linearGradient
+              id="splashPinGradient"
+              x1="25"
+              y1="15"
+              x2="130"
+              y2="150"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="#1e4fd1" />
+              <stop offset="1" stop-color="#1a3fb8" />
             </linearGradient>
+            <filter
+              id="splashPinGlow"
+              x="-80%"
+              y="-80%"
+              width="260%"
+              height="260%"
+            >
+              <feGaussianBlur stdDeviation="7" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
           </defs>
-          <path
-            d="M120 95c-2-37 57-48 66-12 9 37-42 58-76 34-35-25-32-77 13-99 43-21 98 6 105 55 7 51-42 91-98 84-62-8-100-68-75-124"
-            fill="none"
-            stroke="url(#vortexStroke)"
-            stroke-linecap="round"
-            stroke-width="7"
-          />
-          <path
-            d="M120 95c8 18 37 18 45 0 8-19-14-35-36-27-24 8-31 42-11 61 22 21 63 14 79-13"
-            fill="none"
-            stroke="#8ef4ff"
-            stroke-linecap="round"
-            stroke-width="3"
-            opacity="0.9"
-          />
-          <path
-            d="M35 121c21 49 79 64 127 42 36-17 58-52 53-87"
-            fill="none"
-            stroke="#116aff"
-            stroke-linecap="round"
-            stroke-width="2"
-            opacity="0.62"
-          />
+          <g class="splash-pin" filter="url(#splashPinGlow)">
+            <path
+              d="M94 19c-39 0-70 30-70 68 0 52 70 91 70 91s70-39 70-91c0-38-31-68-70-68Z"
+              fill="url(#splashPinGradient)"
+            />
+            <circle cx="94" cy="84" r="31" fill="#fafaf8" />
+            <g
+              fill="none"
+              stroke="#1a3fb8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="5"
+            >
+              <path d="M75 88h38l-3-14H78l-3 14Z" />
+              <path d="M78 88v8m32-8v8M80 74l4-7h16l4 7" />
+              <circle cx="82" cy="88" r="3" fill="#1a3fb8" />
+              <circle cx="106" cy="88" r="3" fill="#1a3fb8" />
+            </g>
+          </g>
+          <g fill="none" stroke-linecap="round" stroke-width="8">
+            <path
+              class="splash-arc"
+              d="M143 55c14-15 35-15 49 0"
+              stroke="#33d6d6"
+            />
+            <path
+              class="splash-arc"
+              d="M151 39c24-25 59-25 83 0"
+              stroke="#4fe3e3"
+            />
+            <path
+              class="splash-arc"
+              d="M160 23c34-35 83-35 117 0"
+              stroke="#7fb8f5"
+            />
+          </g>
+          <text
+            class="splash-word"
+            x="205"
+            y="105"
+            fill="#0b2a5b"
+            font-family="Manrope, sans-serif"
+            font-size="35"
+            font-weight="800"
+            letter-spacing="1"
+          >
+            SMART PARK
+          </text>
+          <text
+            class="splash-online"
+            x="207"
+            y="137"
+            fill="#33c9d6"
+            font-family="Manrope, sans-serif"
+            font-size="15"
+            font-weight="500"
+            letter-spacing="8"
+          >
+            ONLINE
+          </text>
         </svg>
-        <h1 class="splash-name">SMARTPARK</h1>
-        <p class="splash-city">BISHKEK</p>
       </div>
     </div>
     <div class="app">
-      <aside class="rail">
+      <header class="brand-header">
         <div
           class="brand"
           id="brandLogo"
@@ -871,15 +1162,19 @@
           tabindex="0"
           title="Включить звук Smart Park"
         >
-          <div class="brand-mark">P</div>
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 15h16l-1.4-5H5.4L4 15Z" />
+              <path d="M6 10l1.5-3h9l1.5 3M6 15v3m12-3v3" />
+              <circle cx="7.5" cy="15.5" r="1.3" />
+              <circle cx="16.5" cy="15.5" r="1.3" />
+            </svg>
+          </div>
           Smart Park
         </div>
-        <div class="eyebrow">Parking, simplified</div>
+      </header>
+      <aside class="rail">
         <h1>Ваше место<br />уже ждёт.</h1>
-        <p>
-          Умная парковка в лучших торговых центрах Бишкека. Найдите, выберите и
-          приезжайте без лишних кругов.
-        </p>
         <div class="stats">
           <strong>07</strong>локаций в городе<br /><br /><strong>24/7</strong
           >свободный въезд
@@ -887,8 +1182,18 @@
       </aside>
       <main class="main">
         <div class="topbar">
-          <div class="location">⌖ <b>Бишкек</b><span>· онлайн</span></div>
-          <button class="avatar" id="avatar">?</button>
+          <div class="account-controls">
+            <button class="avatar" id="avatar">?</button>
+            <button
+              class="locate-button"
+              id="locateMe"
+              type="button"
+              title="Показать мое местоположение"
+              aria-label="Показать мое местоположение"
+            >
+              ⌾
+            </button>
+          </div>
         </div>
         <div id="map" class="map"></div>
         <section id="mallSheet" class="sheet"></section>
@@ -898,6 +1203,24 @@
               <h2>Все локации</h2>
               <p>Семь удобных парковок в центре города</p>
             </div>
+          </div>
+          <div class="catalog-filters" role="search">
+            <input
+              id="mallSearch"
+              class="catalog-filter"
+              type="search"
+              placeholder="Поиск по названию или адресу"
+              aria-label="Поиск торгового центра"
+            />
+            <select
+              id="mallAvailability"
+              class="catalog-filter"
+              aria-label="Фильтр по свободным местам"
+            >
+              <option value="all">Все ТЦ</option>
+              <option value="available">Есть свободные места</option>
+              <option value="full">Нет свободных мест</option>
+            </select>
           </div>
           <div id="mallGrid" class="mall-grid"></div>
         </section>
@@ -910,45 +1233,190 @@
           </div>
           <div id="reservationList" class="reservations"></div>
         </section>
-        <section id="profilePage" class="page">
+        <section id="settingsPage" class="page">
           <div class="page-title">
             <div>
-              <h2>Профиль</h2>
-              <p>Данные для быстрого бронирования</p>
+              <h2>Настройки</h2>
+              <p>Аккаунт и автомобиль</p>
             </div>
           </div>
-          <form id="profileForm" class="profile-form">
-            {% csrf_token %}
-            <label class="field"
-              ><span>ИМЯ</span
-              ><input name="first_name" required placeholder="Азамат" /></label
-            ><label class="field"
-              ><span>ФАМИЛИЯ</span
-              ><input name="last_name" required placeholder="Садыков" /></label
-            ><label class="field"
-              ><span>МАРКА АВТО</span
-              ><input
-                name="car_make"
-                required
-                placeholder="Toyota Camry" /></label
-            ><label class="field"
-              ><span>ГОСУДАРСТВЕННЫЙ НОМЕР</span
-              ><input
-                name="plate_number"
-                required
-                placeholder="01 KG 777 ABC" /></label
-            ><button class="primary">Сохранить профиль</button>
-          </form>
+          <div class="settings-list">
+            <button
+              class="settings-row"
+              type="button"
+              data-settings-modal="accountModal"
+            >
+              <span class="settings-icon">♙</span
+              ><span
+                ><strong>Регистрация / Данные аккаунта</strong
+                ><small id="accountSummary"
+                  >Заполните данные для бронирования</small
+                ></span
+              ><span class="settings-chevron">›</span>
+            </button>
+            <button
+              class="settings-row"
+              type="button"
+              data-settings-modal="carModal"
+            >
+              <span class="settings-icon">▣</span
+              ><span
+                ><strong>Данные автомобиля</strong
+                ><small id="carSummary">Модель, госномер, цвет</small></span
+              ><span class="settings-chevron">›</span>
+            </button>
+            <button class="settings-row" type="button" id="logoutBtn">
+              <span class="settings-icon">⇠</span
+              ><span
+                ><strong>Выйти из аккаунта</strong
+                ><small>Сменить пользователя</small></span
+              ><span class="settings-chevron">›</span>
+            </button>
+          </div>
         </section>
+        <div id="accountModal" class="settings-modal" aria-hidden="true">
+          <div class="settings-dialog" role="dialog" aria-modal="true">
+            <div class="settings-dialog-head">
+              <h3>Данные аккаунта</h3>
+              <button class="settings-close" type="button" data-close-settings>
+                ×
+              </button>
+            </div>
+            <div
+              class="auth-toggle"
+              role="tablist"
+              aria-label="Выбор способа входа"
+            >
+              <button
+                type="button"
+                class="auth-tab active"
+                data-auth-mode="register"
+              >
+                Регистрация
+              </button>
+              <button type="button" class="auth-tab" data-auth-mode="login">
+                Войти
+              </button>
+            </div>
+            <form id="registrationForm" class="registration-form" novalidate>
+              <p class="registration-intro">
+                Регистрация выполняется один раз. После сохранения данные можно
+                редактировать.
+              </p>
+              <div class="login-only field-block">
+                <label class="field"
+                  ><span>ТЕЛЕФОН ИЛИ EMAIL</span
+                  ><input
+                    name="phone_or_email"
+                    autocomplete="username"
+                    placeholder="+996 700 123 456 или name@example.com"
+                /></label>
+              </div>
+              <div class="registration-grid register-only">
+                <label class="field"
+                  ><span>ИМЯ</span
+                  ><input
+                    name="name"
+                    required
+                    autocomplete="given-name"
+                    placeholder="Азамат" /></label
+                ><label class="field"
+                  ><span>ФАМИЛИЯ</span
+                  ><input
+                    name="surname"
+                    required
+                    autocomplete="family-name"
+                    placeholder="Садыков" /></label
+                ><label class="field"
+                  ><span>НОМЕР ТЕЛЕФОНА</span
+                  ><input
+                    name="phone"
+                    required
+                    type="tel"
+                    autocomplete="tel"
+                    placeholder="+996 700 123 456" /></label
+                ><label class="field"
+                  ><span>EMAIL</span
+                  ><input
+                    name="email"
+                    required
+                    type="email"
+                    autocomplete="email"
+                    placeholder="name@example.com"
+                /></label>
+              </div>
+              <button class="primary" type="submit" id="accountSubmitBtn">
+                Сохранить аккаунт
+              </button>
+              <p
+                id="registrationError"
+                class="registration-error"
+                role="alert"
+              ></p>
+              <p
+                id="registrationSuccess"
+                class="registration-success"
+                role="status"
+              >
+                Данные аккаунта сохранены.
+              </p>
+            </form>
+          </div>
+        </div>
+        <div id="carModal" class="settings-modal" aria-hidden="true">
+          <div class="settings-dialog" role="dialog" aria-modal="true">
+            <div class="settings-dialog-head">
+              <h3>Данные автомобиля</h3>
+              <button class="settings-close" type="button" data-close-settings>
+                ×
+              </button>
+            </div>
+            <form id="settingsForm" class="registration-form" novalidate>
+              <label class="field"
+                ><span>МОДЕЛЬ МАШИНЫ</span
+                ><input name="car_model" placeholder="Toyota Camry" /></label
+              ><label class="field"
+                ><span>ГОСУДАРСТВЕННЫЙ НОМЕР</span
+                ><input
+                  name="plate_number"
+                  placeholder="01 KG 777 ABC" /></label
+              ><label class="field"
+                ><span>ЦВЕТ МАШИНЫ</span
+                ><select name="car_color" aria-label="Цвет машины">
+                  <option value="">Выберите цвет</option>
+                  <option value="Белый">Белый</option>
+                  <option value="Черный">Черный</option>
+                  <option value="Серебристый/Серый">Серебристый/Серый</option>
+                  <option value="Серый металлик">Серый металлик</option>
+                  <option value="Синий">Синий</option>
+                  <option value="Красный">Красный</option>
+                  <option value="Зеленый">Зеленый</option>
+                  <option value="Желтый">Желтый</option>
+                  <option value="Коричневый">Коричневый</option>
+                </select></label
+              ><button class="primary" type="submit">
+                Сохранить автомобиль
+              </button>
+              <p id="settingsError" class="registration-error" role="alert"></p>
+            </form>
+          </div>
+        </div>
         <nav class="bottom-nav">
-          <button class="nav-btn active" data-page="map">
-            <span>⌁</span>Карта</button
+          <button
+            class="nav-btn active"
+            data-page="map"
+            aria-label="Карта, Бишкек"
+          >
+            <span class="nav-icon">⌁</span
+            ><span class="nav-label"
+              >Карта<small class="nav-city">Бишкек</small></span
+            ></button
           ><button class="nav-btn" data-page="catalogPage">
             <span>▦</span>ТЦ</button
           ><button class="nav-btn" data-page="reservationsPage">
             <span>◇</span>Мои брони</button
-          ><button class="nav-btn" data-page="profilePage">
-            <span>◯</span>Профиль
+          ><button class="nav-btn" data-page="settingsPage">
+            <span>⚙</span>Настройки
           </button>
         </nav>
       </main>
@@ -956,8 +1424,34 @@
     <div id="toast" class="toast"></div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-      const state = { malls: [], profile: null, map: null, markers: [] };
+      const mallPhotos = Object.freeze({
+        "Bishkek Park":
+          "https://www.bishkekpark.kg/Management/UploadFiles/Slider_Images/2c6497ce-37bb-429d-b38b-77547a3de139.jpg",
+        "Asia Mall":
+          "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=900&q=85",
+        "Dordoi Plaza":
+          "https://images.unsplash.com/photo-1567449303078-57ad995bd17a?auto=format&fit=crop&w=900&q=85",
+        "Beta Stores":
+          "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=85",
+        "Bishkek City":
+          "https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=900&q=85",
+        "Vefa Center":
+          "https://upload.wikimedia.org/wikipedia/commons/8/86/Vefa_center.jpg",
+        Cosmopark:
+          "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=85",
+        fallback:
+          "https://images.unsplash.com/photo-1567449303078-57ad995bd17a?auto=format&fit=crop&w=900&q=85",
+      });
+      const state = {
+        malls: [],
+        profile: null,
+        account: null,
+        map: null,
+        markers: [],
+        userMarker: null,
+      };
       const $ = (s) => document.querySelector(s);
+      const $$ = (s) => [...document.querySelectorAll(s)];
       const toast = (message) => {
         const el = $("#toast");
         el.textContent = message;
@@ -1013,14 +1507,57 @@
       function markerIcon() {
         return L.divIcon({
           className: "",
-          html: '<div class="marker"><span>P</span></div>',
+          html: `<div class="marker" aria-label="Парковка">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 15h16l-1.4-5H5.4L4 15Z" />
+              <path d="M6 10l1.5-3h9l1.5 3M6 15v3m12-3v3" />
+              <circle cx="7.5" cy="15.5" r="1.3" />
+              <circle cx="16.5" cy="15.5" r="1.3" />
+            </svg>
+          </div>`,
           iconSize: [36, 36],
           iconAnchor: [18, 36],
         });
       }
+      function userMarkerIcon() {
+        return L.divIcon({
+          className: "",
+          html: '<div class="user-marker"></div>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9],
+        });
+      }
+      function locateUser() {
+        if (!navigator.geolocation) {
+          toast("Геолокация не поддерживается этим браузером.");
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => {
+            const position = [coords.latitude, coords.longitude];
+            if (state.userMarker) state.userMarker.remove();
+            state.userMarker = L.marker(position, {
+              icon: userMarkerIcon(),
+              zIndexOffset: 1000,
+            })
+              .addTo(state.map)
+              .bindTooltip("Вы здесь", { direction: "top", offset: [0, -8] });
+            state.map.setView(position, 15, { animate: true });
+            toast("Местоположение найдено");
+          },
+          (error) => {
+            const message =
+              error.code === error.PERMISSION_DENIED
+                ? "Разрешите доступ к геолокации в браузере."
+                : "Не удалось определить местоположение.";
+            toast(message);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+        );
+      }
       function openMall(mall) {
         const sheet = $("#mallSheet");
-        sheet.innerHTML = `<div class="sheet-head"><span class="eyebrow" style="margin:0">PARKING SPOT</span><button class="close" onclick="closeSheet()">×</button></div><img class="mall-image" src="${mall.photo_url}" alt="${mall.name}"><div class="mall-meta"><h3>${mall.name}</h3><p>⌖ ${mall.address}</p></div><div class="spot-title">Карта парковки <span class="legend"><i></i>занято <i></i>свободно</span></div><div class="parking-map">${mall.spots.map((s) => `<button class="map-spot ${s.is_booked ? "booked" : "free"}" ${s.is_booked ? "disabled" : ""} data-spot="${s.id}" title="${s.number}, ${s.floor} этаж">${s.number}</button>`).join("")}</div><div class="spot-title">Список мест</div><div class="spots">${mall.spots.map((s) => `<button class="spot ${s.is_booked ? "booked" : "free"}" ${s.is_booked ? "disabled" : ""} data-spot="${s.id}">${s.number}<small>${s.floor} этаж</small></button>`).join("")}</div><button class="primary" id="reserveBtn" disabled>Забронировать место</button>`;
+        sheet.innerHTML = `<div class="sheet-head"><span class="eyebrow" style="margin:0">PARKING SPOT</span><button class="close" onclick="closeSheet()">×</button></div><img class="mall-image" src="${mall.photo_url}" alt="${mall.name}" referrerpolicy="no-referrer" decoding="async"><div class="mall-meta"><h3>${mall.name}</h3><p>⌖ ${mall.address}</p></div><div class="spot-title">Карта парковки <span class="legend"><i></i>занято <i></i>свободно</span></div><div class="parking-map">${mall.spots.map((s) => `<button class="map-spot ${s.is_booked ? "booked" : "free"}" ${s.is_booked ? "disabled" : ""} data-spot="${s.id}" title="${s.number}, ${s.floor} этаж">${s.number}</button>`).join("")}</div><div class="spot-title">Список мест</div><div class="spots">${mall.spots.map((s) => `<button class="spot ${s.is_booked ? "booked" : "free"}" ${s.is_booked ? "disabled" : ""} data-spot="${s.id}">${s.number}<small>${s.floor} этаж</small></button>`).join("")}</div><button class="primary" id="reserveBtn" disabled>Забронировать место</button>`;
         sheet.classList.add("active");
         let selected = null;
         sheet.querySelectorAll(".spot.free, .map-spot.free").forEach(
@@ -1039,8 +1576,9 @@
         $("#reserveBtn").onclick = () => {
           if (!state.profile) {
             closeSheet();
-            showPage("profilePage");
-            toast("Сначала заполните профиль");
+            showPage("settingsPage");
+            openSettingsModal("accountModal");
+            toast("Сначала заполните данные аккаунта");
             return;
           }
           const data = new FormData();
@@ -1063,12 +1601,26 @@
         $("#mallSheet").classList.remove("active");
       }
       function renderCatalog() {
-        $("#mallGrid").innerHTML = state.malls
-          .map(
-            (m) =>
-              `<article class="mall-card" data-id="${m.id}"><img src="${m.photo_url}" alt="${m.name}"><div><h3>${m.name}</h3><p>${m.address}</p><span class="free">${m.free_count} свободных мест</span></div></article>`,
-          )
-          .join("");
+        const search = $("#mallSearch").value.trim().toLocaleLowerCase();
+        const availability = $("#mallAvailability").value;
+        const filteredMalls = state.malls.filter((mall) => {
+          const matchesSearch = [mall.name, mall.address].some((value) =>
+            value.toLocaleLowerCase().includes(search),
+          );
+          const matchesAvailability =
+            availability === "all" ||
+            (availability === "available" && mall.free_count > 0) ||
+            (availability === "full" && mall.free_count === 0);
+          return matchesSearch && matchesAvailability;
+        });
+        $("#mallGrid").innerHTML = filteredMalls.length
+          ? filteredMalls
+              .map(
+                (m) =>
+                  `<article class="mall-card" data-id="${m.id}"><img src="${m.photo_url}" alt="${m.name}" loading="lazy" decoding="async" referrerpolicy="no-referrer"><div><h3>${m.name}</h3><p>${m.address}</p><span class="free">${m.free_count} свободных мест</span></div></article>`,
+              )
+              .join("")
+          : '<div class="catalog-empty">По вашим фильтрам ТЦ не найдено.</div>';
         document
           .querySelectorAll(".mall-card")
           .forEach(
@@ -1077,6 +1629,9 @@
                 openMall(state.malls.find((m) => m.id == c.dataset.id))),
           );
       }
+      $("#mallSearch").addEventListener("input", renderCatalog);
+      $("#mallAvailability").addEventListener("change", renderCatalog);
+      $("#locateMe").addEventListener("click", locateUser);
       function loadReservations() {
         const plate = state.profile?.plate_number || "";
         fetch("/api/reservations/?plate=" + encodeURIComponent(plate))
@@ -1093,21 +1648,34 @@
           });
       }
       function loadData() {
-        fetch("/api/bootstrap/")
-          .then((r) => r.json())
+        return fetch("/api/bootstrap/")
+          .then((r) => {
+            if (!r.ok) throw Error("Не удалось загрузить данные парковок.");
+            return r.json();
+          })
           .then((data) => {
             state.malls = data.malls;
-            state.profile = data.profile;
+            state.malls.forEach((mall) => {
+              mall.photo_url = mallPhotos[mall.name] || mallPhotos.fallback;
+            });
+            state.account = data.account;
+            state.profile = state.account
+              ? {
+                  first_name: state.account.name,
+                  last_name: state.account.surname,
+                  car_make: state.account.car_model,
+                  plate_number: state.account.plate_number,
+                }
+              : data.profile;
             renderCatalog();
             if (!state.map) {
               state.map = L.map("map", { zoomControl: false }).setView(
                 [42.8746, 74.6032],
                 13,
               );
-              L.control.zoom({ position: "bottomright" }).addTo(state.map);
               L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-                { attribution: "© OpenStreetMap © CARTO" },
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                { attribution: "© OpenStreetMap contributors" },
               ).addTo(state.map);
             }
             state.markers.forEach((m) => m.remove());
@@ -1119,40 +1687,296 @@
             $("#avatar").textContent = state.profile
               ? state.profile.first_name[0].toUpperCase()
               : "?";
-            if (state.profile) {
-              const form = $("#profileForm");
-              Object.entries(state.profile).forEach(
-                ([k, v]) => (form.elements[k].value = v),
-              );
-            }
+            if (state.account) fillSettingsForm();
           });
       }
-      $("#profileForm").onsubmit = (e) => {
-        e.preventDefault();
-        post("/api/profile/", new FormData(e.target))
-          .then(async (r) => {
-            const d = await r.json();
-            if (!r.ok) throw Error(d.error);
-            state.profile = d.profile;
-            $("#avatar").textContent =
-              state.profile.first_name[0].toUpperCase();
-            toast("Профиль сохранён");
-            showPage("map");
+      const registrationForm = $("#registrationForm");
+      const registrationError = $("#registrationError");
+      const registrationSuccess = $("#registrationSuccess");
+      const settingsForm = $("#settingsForm");
+      const settingsError = $("#settingsError");
+      const accountModal = $("#accountModal");
+      const accountSummary = $("#accountSummary");
+      const carSummary = $("#carSummary");
+      function setAuthMode(mode) {
+        const registerOnly = $$(".register-only");
+        const loginOnly = $$(".login-only");
+        const authTabs = $$(".auth-tab");
+        const submitBtn = $("#accountSubmitBtn");
+        const intro = $(".registration-intro");
+        const isLogin = mode === "login";
+
+        registerOnly.forEach((el) => {
+          el.style.display = isLogin ? "none" : "grid";
+        });
+        loginOnly.forEach((el) => {
+          el.style.display = isLogin ? "block" : "none";
+        });
+        authTabs.forEach((tab) => {
+          tab.classList.toggle("active", tab.dataset.authMode === mode);
+        });
+        submitBtn.textContent = isLogin
+          ? "Войти в аккаунт"
+          : "Сохранить аккаунт";
+        intro.textContent = isLogin
+          ? "Введите номер телефона или email, чтобы открыть существующий аккаунт."
+          : "Регистрация выполняется один раз. После сохранения данные можно редактировать.";
+        $("#registrationError").textContent = "";
+      }
+      function openSettingsModal(id) {
+        const modal = $("#" + id);
+        if (!modal) return;
+        if (id === "accountModal") {
+          if (state.account) fillAccountForm();
+          setAuthMode("register");
+        }
+        if (id === "carModal" && state.account) fillSettingsForm();
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+      function closeSettingsModal(modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+      document
+        .querySelectorAll("[data-settings-modal]")
+        .forEach((button) =>
+          button.addEventListener("click", () =>
+            openSettingsModal(button.dataset.settingsModal),
+          ),
+        );
+      $$(".auth-tab").forEach((button) =>
+        button.addEventListener("click", () =>
+          setAuthMode(button.dataset.authMode),
+        ),
+      );
+      $("#logoutBtn")?.addEventListener("click", () => {
+        post("/api/logout/", new FormData())
+          .then(async (response) => {
+            const result = await response.json();
+            if (!response.ok)
+              throw new Error(result.error || "Не удалось выйти.");
+            state.account = null;
+            state.profile = null;
+            $("#avatar").textContent = "?";
+            toast("Вы вышли из аккаунта");
+            openSettingsModal("accountModal");
           })
-          .catch((e) => toast(e.message));
+          .catch((error) => {
+            toast(error.message);
+          });
+      });
+      document
+        .querySelectorAll("[data-close-settings]")
+        .forEach((button) =>
+          button.addEventListener("click", () =>
+            closeSettingsModal(button.closest(".settings-modal")),
+          ),
+        );
+      document.querySelectorAll(".settings-modal").forEach((modal) =>
+        modal.addEventListener("click", (event) => {
+          if (event.target === modal) closeSettingsModal(modal);
+        }),
+      );
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape")
+          document
+            .querySelectorAll(".settings-modal.open")
+            .forEach(closeSettingsModal);
+      });
+      function fillAccountForm() {
+        if (!state.account) return;
+        ["name", "surname", "phone", "email"].forEach((field) => {
+          registrationForm.elements[field].value = state.account[field] || "";
+        });
+      }
+      function fillSettingsForm() {
+        if (!state.account) return;
+        ["car_model", "plate_number", "car_color"].forEach((field) => {
+          settingsForm.elements[field].value = state.account[field] || "";
+        });
+        accountSummary.textContent = `${state.account.name} ${state.account.surname} · ${state.account.email}`;
+        carSummary.textContent = state.account.car_model
+          ? `${state.account.car_model} · ${state.account.plate_number || "номер не указан"} · ${state.account.car_color || "цвет не указан"}`
+          : "Модель, госномер, цвет";
+      }
+      registrationForm.onsubmit = (event) => {
+        event.preventDefault();
+        registrationError.textContent = "";
+        registrationSuccess.classList.remove("show");
+
+        const mode = $(".auth-tab.active")?.dataset.authMode || "register";
+        const formData = new FormData(registrationForm);
+
+        if (mode === "login") {
+          const phoneOrEmail = (formData.get("phone_or_email") || "")
+            .toString()
+            .trim();
+          if (!phoneOrEmail) {
+            registrationError.textContent = "Введите телефон или email.";
+            registrationForm.elements.phone_or_email.focus();
+            return;
+          }
+          const loginData = new FormData();
+          loginData.append("phone_or_email", phoneOrEmail);
+          post("/api/login/", loginData)
+            .then(async (response) => {
+              const result = await response.json();
+              if (!response.ok)
+                throw new Error(result.error || "Не удалось войти.");
+              state.account = result.account;
+              state.profile = result.profile || {
+                first_name: result.account.name,
+                last_name: result.account.surname,
+                car_make: result.account.car_model,
+                plate_number: result.account.plate_number,
+              };
+              fillSettingsForm();
+              $("#avatar").textContent = result.account.name[0].toUpperCase();
+              toast("Вход выполнен");
+              closeSettingsModal(accountModal);
+              showPage("settingsPage");
+            })
+            .catch((error) => {
+              registrationError.textContent = error.message;
+            });
+          return;
+        }
+
+        const registration = Object.fromEntries(
+          ["name", "surname", "phone", "email"].map((field) => [
+            field,
+            (formData.get(field) || "").toString().trim(),
+          ]),
+        );
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        const emptyField = Object.entries(registration).find(
+          ([, value]) => !value,
+        );
+        if (emptyField) {
+          registrationError.textContent = "Заполните все поля.";
+          registrationForm.elements[emptyField[0]].focus();
+          return;
+        }
+        if (!emailPattern.test(registration.email)) {
+          registrationError.textContent =
+            "Введите email в формате name@example.com.";
+          registrationForm.elements.email.focus();
+          return;
+        }
+        const updatingAccount = Boolean(state.account);
+        const accountRequest = updatingAccount
+          ? "/api/account/"
+          : "/api/register/";
+        const accountData = new FormData();
+        Object.entries(registration).forEach(([field, value]) =>
+          accountData.append(field, value),
+        );
+        if (updatingAccount) {
+          ["car_model", "plate_number", "car_color"].forEach((field) =>
+            accountData.append(field, state.account[field] || ""),
+          );
+        }
+        post(accountRequest, accountData)
+          .then(async (response) => {
+            const result = await response.json();
+            if (!response.ok) {
+              const error = Error(result.error);
+              error.account = result.account;
+              throw error;
+            }
+            state.account = result.account;
+            state.profile = {
+              first_name: result.account.name,
+              last_name: result.account.surname,
+              car_make: result.account.car_model,
+              plate_number: result.account.plate_number,
+            };
+            registrationSuccess.classList.add("show");
+            fillSettingsForm();
+            toast(
+              updatingAccount
+                ? "Данные аккаунта сохранены"
+                : "Регистрация выполнена",
+            );
+            closeSettingsModal(accountModal);
+            showPage("settingsPage");
+          })
+          .catch((error) => {
+            if (error.account) {
+              state.account = error.account;
+              state.profile = {
+                first_name: error.account.name,
+                last_name: error.account.surname,
+                car_make: error.account.car_model,
+                plate_number: error.account.plate_number,
+              };
+              fillSettingsForm();
+              showPage("settingsPage");
+            }
+            registrationError.textContent = error.message;
+          });
+      };
+      settingsForm.onsubmit = (event) => {
+        event.preventDefault();
+        settingsError.textContent = "";
+        if (!state.account) {
+          settingsError.textContent = "Сначала сохраните данные аккаунта.";
+          return;
+        }
+        const carData = new FormData(settingsForm);
+        const accountData = new FormData();
+        ["name", "surname", "phone", "email"].forEach((field) =>
+          accountData.append(field, state.account?.[field] || ""),
+        );
+        carData.forEach((value, field) => accountData.append(field, value));
+        post("/api/account/", accountData)
+          .then(async (response) => {
+            const result = await response.json();
+            if (!response.ok) throw Error(result.error);
+            state.account = result.account;
+            state.profile = {
+              first_name: result.account.name,
+              last_name: result.account.surname,
+              car_make: result.account.car_model,
+              plate_number: result.account.plate_number,
+            };
+            fillSettingsForm();
+            $("#avatar").textContent = result.account.name[0].toUpperCase();
+            toast("Настройки сохранены");
+            closeSettingsModal($("#carModal"));
+          })
+          .catch((error) => {
+            settingsError.textContent = error.message;
+          });
       };
       document
         .querySelectorAll(".nav-btn")
         .forEach((b) => (b.onclick = () => showPage(b.dataset.page)));
-      const splash = $("#splash");
-      setTimeout(() => {
-        splash.classList.add("is-hidden");
-        splash.addEventListener(
-          "transitionend",
-          () => (splash.style.display = "none"),
-          { once: true },
+      // SplashScreen: ждём и минимальную длительность, и bootstrap, чтобы экран не обрывался.
+      function SplashScreen(dataPromise) {
+        const splash = $("#splash");
+        const reducedMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        const minimumDuration = reducedMotion ? 400 : 2700;
+        const animationReady = new Promise((resolve) =>
+          setTimeout(resolve, minimumDuration),
         );
-      }, 2500);
+        return Promise.all([dataPromise, animationReady]).then(() => {
+          splash.classList.add("is-hidden");
+          return new Promise((resolve) => {
+            splash.addEventListener(
+              "transitionend",
+              () => {
+                splash.style.display = "none";
+                resolve();
+              },
+              { once: true },
+            );
+          });
+        });
+      }
       $("#brandLogo").addEventListener("click", playLogoSound);
       $("#brandLogo").addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -1160,7 +1984,10 @@
           playLogoSound();
         }
       });
-      loadData();
+      const dataPromise = loadData().catch((error) => {
+        toast(error.message);
+      });
+      SplashScreen(dataPromise);
     </script>
   </body>
 </html>

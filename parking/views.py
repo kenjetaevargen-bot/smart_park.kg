@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 
-from .models import Mall, ParkingSpot, Reservation
+from .models import Mall, ParkingSpot, Reservation, UserProfile
 
 
 def index(request):
@@ -30,7 +30,112 @@ def mall_payload(mall):
 @require_GET
 def bootstrap(request):
     malls = Mall.objects.prefetch_related("spots").all()
-    return JsonResponse({"malls": [mall_payload(mall) for mall in malls], "profile": request.session.get("profile")})
+    account = None
+    user_id = request.session.get("user_profile_id")
+    if user_id:
+        account = UserProfile.objects.filter(id=user_id).values(
+            "id", "name", "surname", "phone", "email", "car_model", "plate_number", "car_color"
+        ).first()
+        if not account:
+            request.session.pop("user_profile_id", None)
+            request.session.pop("profile", None)
+            request.session.modified = True
+    return JsonResponse({"malls": [mall_payload(mall) for mall in malls], "profile": request.session.get("profile"), "account": account})
+
+
+def account_payload(account):
+    return {
+        "id": account.id,
+        "name": account.name,
+        "surname": account.surname,
+        "phone": account.phone,
+        "email": account.email,
+        "car_model": account.car_model,
+        "plate_number": account.plate_number,
+        "car_color": account.car_color,
+    }
+
+
+def set_session_profile(request, account):
+    request.session["user_profile_id"] = account.id
+    request.session["profile"] = {
+        "first_name": account.name,
+        "last_name": account.surname,
+        "car_make": account.car_model,
+        "plate_number": account.plate_number,
+    }
+    request.session.modified = True
+
+
+@require_POST
+def login(request):
+    phone_or_email = (request.POST.get("phone_or_email") or "").strip()
+    if not phone_or_email:
+        return JsonResponse({"error": "Введите номер телефона или email."}, status=400)
+
+    query = phone_or_email.strip()
+    account = UserProfile.objects.filter(phone__iexact=query).first()
+    if not account:
+        account = UserProfile.objects.filter(email__iexact=query.lower()).first()
+    if not account:
+        return JsonResponse({"error": "Пользователь не найден. Зарегистрируйтесь или проверьте данные."}, status=404)
+
+    set_session_profile(request, account)
+    return JsonResponse({"account": account_payload(account), "profile": request.session["profile"]})
+
+
+@require_POST
+def logout(request):
+    request.session.pop("user_profile_id", None)
+    request.session.pop("profile", None)
+    request.session.modified = True
+    return JsonResponse({"ok": True})
+
+
+@require_POST
+def register(request):
+    data = request.POST
+    values = {field: data.get(field, "").strip() for field in ("name", "surname", "phone", "email")}
+    if any(not value for value in values.values()):
+        return JsonResponse({"error": "Заполните все поля регистрации."}, status=400)
+    values["email"] = values["email"].lower()
+    existing = UserProfile.objects.filter(phone=values["phone"], email=values["email"]).first()
+    if existing or UserProfile.objects.filter(phone=values["phone"]).exists() or UserProfile.objects.filter(email=values["email"]).exists():
+        if existing:
+            request.session["user_profile_id"] = existing.id
+            request.session["profile"] = {"first_name": existing.name, "last_name": existing.surname, "car_make": existing.car_model, "plate_number": existing.plate_number}
+            return JsonResponse({"error": "Этот пользователь уже зарегистрирован. Открываем личный кабинет.", "account": account_payload(existing)}, status=409)
+        return JsonResponse({"error": "Этот пользователь уже зарегистрирован. Откройте личный кабинет."}, status=409)
+    try:
+        account = UserProfile.objects.create(**values)
+    except IntegrityError:
+        return JsonResponse({"error": "Этот пользователь уже зарегистрирован. Откройте личный кабинет."}, status=409)
+    set_session_profile(request, account)
+    request.session["profile"] = {"first_name": account.name, "last_name": account.surname, "car_make": account.car_model, "plate_number": account.plate_number}
+    return JsonResponse({"account": account_payload(account)}, status=201)
+
+
+@require_POST
+def update_account(request):
+    account_id = request.session.get("user_profile_id")
+    account = UserProfile.objects.filter(id=account_id).first()
+    if not account:
+        return JsonResponse({"error": "Сначала пройдите регистрацию."}, status=401)
+    data = request.POST
+    values = {field: data.get(field, "").strip() for field in ("name", "surname", "phone", "email", "car_model", "plate_number", "car_color")}
+    if any(not values[field] for field in ("name", "surname", "phone", "email")):
+        return JsonResponse({"error": "Имя, фамилия, телефон и email обязательны."}, status=400)
+    values["email"] = values["email"].lower()
+    if UserProfile.objects.filter(phone=values["phone"]).exclude(id=account.id).exists() or UserProfile.objects.filter(email=values["email"]).exclude(id=account.id).exists():
+        return JsonResponse({"error": "Телефон или email уже принадлежат другому пользователю."}, status=409)
+    for field, value in values.items():
+        setattr(account, field, value)
+    try:
+        account.save()
+    except IntegrityError:
+        return JsonResponse({"error": "Телефон или email уже принадлежат другому пользователю."}, status=409)
+    request.session["profile"] = {"first_name": account.name, "last_name": account.surname, "car_make": account.car_model, "plate_number": account.plate_number}
+    return JsonResponse({"account": account_payload(account)})
 
 
 @require_POST
